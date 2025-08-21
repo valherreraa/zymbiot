@@ -34,6 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:
@@ -51,11 +52,30 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
+    - assets/purple-bacteria.png
+    - assets/google-icon.svg
+    - assets/avatar.png
+    - assets/placa.png
+    - assets/Icon.png
+    - assets/Logo-Blanco.png
+    - assets/bg.png
+  fonts:
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron/static/Orbitron-Regular.ttf
+        - asset: assets/fonts/Orbitron/static/Orbitron-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Orbitron/static/Orbitron-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Orbitron/static/Orbitron-SemiBold.ttf
+          weight: 600
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
-  uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:
