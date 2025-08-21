@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "50299541997",
+    "firebase_url": "https://zymbiot-6b136-default-rtdb.firebaseio.com",
+    "project_id": "zymbiot-6b136",
+    "storage_bucket": "zymbiot-6b136.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50299541997:android:00f1569648fd9a000dafe4",
+        "android_client_info": {
+          "package_name": "com.company.zymbiot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "50299541997-5vsebv9v69r877lfcsv7nmbcodqkeu2e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGJeRiSZY09R15MGvukxce3DJYNmEyrm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50299541997-5vsebv9v69r877lfcsv7nmbcodqkeu2e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
