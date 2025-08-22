@@ -1,10 +1,16 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")  // Este debe estar aquí
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+    id("dev.flutter.flutter-gradle-plugin") // Flutter Gradle plugin
 }
 
+
+buildscript{
+    dependencies{
+        classpath 'com.google.gms:google-services:4.3.10'
+    }
+}
 android {
     namespace = "com.example.zymbiot"
     compileSdk = flutter.compileSdkVersion
@@ -42,3 +48,4 @@ android {
 flutter {
     source = "../.."
 }
+apply plugin: 'com.google.gms.google-services'
