@@ -1,20 +1,31 @@
 plugins {
     id("com.android.application")
-    id("com.google.gms.google-services")  // Este debe estar aquí
+    id("com.google.gms.google-services")  // This must be here for Firebase integration
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin") // Flutter Gradle plugin
 }
 
-
-buildscript{
-    dependencies{
-        classpath 'com.google.gms:google-services:4.3.10'
+buildscript {
+    repositories {
+        google()  // Add Google repository
+        mavenCentral()  // Maven central for dependencies
+    }
+    dependencies {
+        classpath("com.google.gms:google-services:4.3.10")  // Firebase plugin
     }
 }
+
 android {
-    namespace = "com.example.zymbiot"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.example.zymbiot"  // Set your app's namespace
+    compileSdk = flutter.compileSdkVersion  // Use Flutter's compileSdkVersion
+
+    defaultConfig {
+        applicationId = "com.example.zymbiot"  // Unique Application ID
+        minSdkVersion(23)  // Corrected: Use method call for minSdkVersion
+        targetSdk = flutter.targetSdkVersion  // Use Flutter's targetSdkVersion
+        versionCode = flutter.versionCode  // Define your version code
+        versionName = flutter.versionName  // Define your version name
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -22,30 +33,16 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
-    defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.zymbiot"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        jvmTarget = "11"  // Kotlin compatibility
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("debug")  // Define signing config for release
         }
     }
 }
 
 flutter {
-    source = "../.."
+    source = "../.."  // Define the path to the Flutter source
 }
-apply plugin: 'com.google.gms.google-services'
