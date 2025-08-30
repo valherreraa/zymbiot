@@ -10,9 +10,14 @@ class CongratulationsScreen extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/bg.png',
+              'assets/purple-bacteria.png',
               fit: BoxFit.cover,
             ),
+          ),
+          
+          // Capa negra translúcida encima del fondo
+          Container(
+            color: Colors.black.withOpacity(0.8),
           ),
 
           // Contenido centrado
@@ -36,10 +41,7 @@ class CongratulationsScreen extends StatelessWidget {
                   const Text(
                     'Thank you for signing up with us',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                   const SizedBox(height: 32),
 
@@ -49,14 +51,14 @@ class CongratulationsScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/principal');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF800080),
+                      backgroundColor: const Color(0xFF33133B),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
                         vertical: 16,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(color: Colors.white24),
+                        side: const BorderSide(color: Color(0xFF64316B)),
                       ),
                     ),
                     child: const Text(
@@ -66,7 +68,7 @@ class CongratulationsScreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

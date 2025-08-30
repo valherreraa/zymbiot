@@ -4,6 +4,10 @@ import 'pantallas/Login.dart';
 import 'pantallas/Register.dart';
 import 'pantallas/Principal.dart';
 import 'pantallas/Congrats.dart';
+import 'pantallas/NavigationBar.dart';
+import 'pantallas/Profile.dart';
+import 'pantallas/Library.dart';
+
 //firebase
 import 'package:firebase_core/firebase_core.dart';
 
@@ -33,6 +37,9 @@ class ZymbiotApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),   // Ruta para Register
         '/principal': (context) => const PrincipalScreen(), // Ruta para Principal
         '/congrats': (context) => const CongratulationsScreen(), // Ruta para Congrats
+        '/customnavigationBar': (context) => const CustomNavigationBar(),
+        '/profile': (context) => const ProfileScreen(),
+        '/library': (context) => const LibraryScreen(),
       },
     );
   }
