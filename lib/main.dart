@@ -8,12 +8,16 @@ import 'pantallas/NavigationBar.dart';
 import 'pantallas/Profile.dart';
 import 'pantallas/Library.dart';
 
-//firebase
+// Firebase
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  // Inicializar Firebase con las opciones generadas
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const ZymbiotApp());
 }
 
@@ -26,17 +30,15 @@ class ZymbiotApp extends StatelessWidget {
       title: 'Zymbiot',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        textTheme: ThemeData.dark().textTheme.apply(
-          fontFamily: 'Orbitron',
-        ),
+        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Orbitron'),
       ),
-      initialRoute: '/home',  // Ruta inicial al Home
+      initialRoute: '/home',
       routes: {
-        '/home': (context) => const HomeScreen(),           // Ruta para Home
-        '/login': (context) => const LoginScreen(),         // Ruta para Login
-        '/register': (context) => const RegisterScreen(),   // Ruta para Register
-        '/principal': (context) => const PrincipalScreen(), // Ruta para Principal
-        '/congrats': (context) => const CongratulationsScreen(), // Ruta para Congrats
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/principal': (context) => const PrincipalScreen(),
+        '/congrats': (context) => const CongratulationsScreen(),
         '/customnavigationBar': (context) => const CustomNavigationBar(),
         '/profile': (context) => const ProfileScreen(),
         '/library': (context) => const LibraryScreen(),
