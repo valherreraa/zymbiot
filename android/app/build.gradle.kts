@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.zymbiot"  // Unique Application ID
-        minSdkVersion(23)  // Corrected: Use method call for minSdkVersion
+        minSdkVersion(24)  // Corrected: Use method call for minSdkVersion
         targetSdk = flutter.targetSdkVersion  // Use Flutter's targetSdkVersion
         versionCode = flutter.versionCode  // Define your version code
         versionName = flutter.versionName  // Define your version name
