@@ -1,8 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
+  Future<void> _signInWithEmailAndPassword() async {
+    try {
+      final UserCredential userCredential = await _auth
+          .signInWithEmailAndPassword(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+      if (userCredential.user != null) {
+        // ignore: use_build_context_synchronously
+        Navigator.pushNamed(context, '/congrats');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      if (userCredential.user != null) {
+        // ignore: use_build_context_synchronously
+        Navigator.pushNamed(context, '/congrats');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,10 +74,7 @@ class LoginScreen extends StatelessWidget {
         children: [
           // Imagen de fondo
           Positioned.fill(
-            child: Image.asset(
-              'assets/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/bg.png', fit: BoxFit.cover),
           ),
 
           // Contenido
@@ -38,6 +98,8 @@ class LoginScreen extends StatelessWidget {
 
                     // Email
                     TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'hello@example.com',
                         hintStyle: const TextStyle(
@@ -60,6 +122,7 @@ class LoginScreen extends StatelessWidget {
 
                     // Password
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: '............',
@@ -100,13 +163,11 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // Login button 
+                    // Login button
                     Container(
                       margin: const EdgeInsets.only(top: 8, bottom: 24),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/congrats');
-                        },
+                        onPressed: _signInWithEmailAndPassword,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: const Color(0xFF33133B),
@@ -147,16 +208,20 @@ class LoginScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
-                        onPressed: () {
-                          // TODO: Google Sign-In logic
-                        },
+                        onPressed: _signInWithGoogle,
                         style: OutlinedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 58, 57, 58),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            58,
+                            57,
+                            58,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
-                            side: const BorderSide(color: Color.fromARGB(255, 58, 57, 58)),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 58, 57, 58),
+                            ),
                           ),
                         ),
                         child: Row(
