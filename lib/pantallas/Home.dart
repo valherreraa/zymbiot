@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
 
                     // Eslogan
                     const Text(
-                      'Precisión microbiológica\nen la palma de tu mano',
+                      '\n\nPrecisión microbiológica\nen la palma de tu mano',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFFCCCCCC),

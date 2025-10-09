@@ -16,6 +16,38 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
+  Future<void> _resetPassword() async {
+    if (_emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, ingresa tu correo electrónico'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await _auth.sendPasswordResetEmail(email: _emailController.text);
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Se ha enviado un correo para restablecer tu contraseña',
+          ),
+          backgroundColor: Color.fromARGB(255, 209, 185, 249),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _signInWithEmailAndPassword() async {
     try {
       final UserCredential userCredential = await _auth
@@ -23,7 +55,21 @@ class _LoginScreenState extends State<LoginScreen> {
             email: _emailController.text,
             password: _passwordController.text,
           );
+
       if (userCredential.user != null) {
+        if (!userCredential.user!.emailVerified) {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Por favor, verifica tu correo electrónico antes de iniciar sesión',
+              ),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          await userCredential.user!.sendEmailVerification();
+          return;
+        }
         // ignore: use_build_context_synchronously
         Navigator.pushNamed(context, '/congrats');
       }
@@ -148,9 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {
-                          // TODO: forgot logic
-                        },
+                        onPressed: _resetPassword,
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: const Text(
                           'Forgot your account?',
