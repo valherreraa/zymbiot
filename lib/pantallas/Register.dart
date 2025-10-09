@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Botón Register (sin degradado, solo color y borde)
+                    // Botón Register 
                     ElevatedButton(
                       onPressed: _register,
                       style: ElevatedButton.styleFrom(

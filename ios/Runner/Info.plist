@@ -45,6 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a la cámara para tomar fotos de las muestras.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceso a la galería para seleccionar imágenes.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
