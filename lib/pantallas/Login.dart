@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (userCredential.user != null) {
         // ignore: use_build_context_synchronously
-        Navigator.pushNamed(context, '/congrats');
+        Navigator.pushReplacementNamed(context, '/principal');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

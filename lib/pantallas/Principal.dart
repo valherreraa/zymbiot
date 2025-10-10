@@ -140,7 +140,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         children: [
           // Fondo
           Positioned.fill(
-            child: Image.asset('assets/bg.png', fit: BoxFit.cover),
+            child: Image.asset('assets/bg3.gif', fit: BoxFit.cover),
           ),
 
           // Contenido principal
@@ -196,10 +196,11 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                     child: ElevatedButton(
                       onPressed: _takePicture,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF800080),
+                        backgroundColor: const Color(0xFF33133B),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
+                          side: const BorderSide(color: Color(0xFF64316B)),
                         ),
                       ),
                       child: const Text(

@@ -60,7 +60,7 @@ class _FilesScreenState extends State<FilesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis Archivos'),
-        backgroundColor: const Color(0xFF800080),
+        backgroundColor: const Color(0xFF64316B)
       ),
       body: ListView.builder(
         itemCount: _items.length,

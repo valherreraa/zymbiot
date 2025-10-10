@@ -65,10 +65,12 @@ flutter:
     - assets/purple-bacteria.png
     - assets/google-icon.svg
     - assets/avatar.png
+    - assets/avatar2.png
     - assets/placa.png
     - assets/Icon.png
     - assets/Logo-Blanco.png
     - assets/bg.png
+    - assets/bg3.gif
   fonts:
     - family: Orbitron
       fonts:
