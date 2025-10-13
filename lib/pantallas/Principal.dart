@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
 import 'dart:io';
 import 'Profile.dart';
 import 'Files.dart';
@@ -188,7 +189,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
 
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 200),
 
                   // Botón 1
                   SizedBox(
@@ -210,7 +211,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
 
                   // Botón 2
                   SizedBox(
@@ -232,6 +233,8 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 50),
                 ],
               ),
             ),

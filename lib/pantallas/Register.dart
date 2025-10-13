@@ -45,10 +45,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'Se ha enviado un correo de verificación a tu cuenta. Por favor, verifica tu correo antes de iniciar sesión.',
             ),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
           ),
         );
         // ignore: use_build_context_synchronously
-        Navigator.pushNamed(context, '/congrats');
+        Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -183,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Botón Register 
+                    // Botón Register
                     ElevatedButton(
                       onPressed: _register,
                       style: ElevatedButton.styleFrom(

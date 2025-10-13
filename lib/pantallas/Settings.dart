@@ -7,13 +7,13 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración'),
-        backgroundColor: const Color(0xFF800080),
+        title: const Text('Avisos'),
+        backgroundColor: const Color(0xFF64316B),
       ),
       body: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.privacy_tip),
+            leading: const Icon(Icons.warning_rounded),
             title: const Text('Aviso de Privacidad'),
             onTap: () {
               showDialog(
@@ -37,7 +37,9 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.info),
+            leading: const Icon(
+              Icons.announcement_rounded,
+            ),
             title: const Text('Acerca de la App'),
             onTap: () {
               showDialog(
@@ -49,7 +51,7 @@ class SettingsScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Versión: 1.0.0'),
+                        Text('Versión: 2.0.0'),
                         SizedBox(height: 8),
                         Text('Zymbiot es una aplicación para...'),
                         // TODO: Agregar más información sobre la app

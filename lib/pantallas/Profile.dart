@@ -19,7 +19,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -29,9 +28,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     final user = _auth.currentUser;
     if (user != null) {
+      // Recargar el usuario para obtener los datos más recientes
+      await user.reload();
+      final freshUser = _auth.currentUser;
+
       setState(() {
-        _usernameController.text = user.displayName ?? 'Usuario';
-        _emailController.text = user.email ?? '';
+        _usernameController.text = freshUser?.displayName ?? 'Usuario';
+        _emailController.text = freshUser?.email ?? '';
+        // Cargar el avatar guardado o usar el predeterminado
+        _selectedAvatar = freshUser?.photoURL ?? 'assets/avatar.png';
       });
     }
   }
@@ -40,86 +45,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        await user.updateDisplayName(_usernameController.text);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado correctamente')),
+        // Actualizar nombre de usuario y avatar
+        await user.updateProfile(
+          displayName: _usernameController.text,
+          photoURL: _selectedAvatar,
         );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al actualizar perfil: $e')));
-    }
-  }
 
-  Future<void> _changeEmail() async {
-    try {
-      if (_emailController.text.isEmpty) {
-        throw 'El correo no puede estar vacío';
-      }
-      final user = _auth.currentUser;
-      if (user != null) {
-        // Re-autenticar al usuario antes de cambiar el correo
-        final credential = EmailAuthProvider.credential(
-          email: user.email!,
-          password: _passwordController.text,
-        );
-        await user.reauthenticateWithCredential(credential);
-        await user.verifyBeforeUpdateEmail(_emailController.text);
+        // Recargar el usuario para obtener los cambios más recientes
+        await user.reload();
 
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Se ha enviado un correo de verificación a la nueva dirección',
+        // Actualizar el estado local
+        setState(() {});
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Perfil actualizado correctamente'),
+              backgroundColor: Colors.green,
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
-      String errorMessage = 'Error al actualizar correo';
-      if (e.toString().contains('invalid-email')) {
-        errorMessage = 'Correo electrónico inválido';
-      } else if (e.toString().contains('email-already-in-use')) {
-        errorMessage = 'Este correo ya está en uso';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
-    }
-  }
-
-  Future<void> _changePassword() async {
-    try {
-      if (_passwordController.text.length < 6) {
-        throw 'La contraseña debe tener al menos 6 caracteres';
-      }
-
-      final user = _auth.currentUser;
-      if (user != null) {
-        // Enviar correo de restablecimiento de contraseña
-        await _auth.sendPasswordResetEmail(email: user.email!);
-
-        // ignore: use_build_context_synchronously
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Se ha enviado un correo para cambiar tu contraseña'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text('Error al actualizar perfil: $e'),
+            backgroundColor: Colors.red,
           ),
         );
-
-        // Limpiar el campo de contraseña
-        _passwordController.clear();
       }
-    } catch (e) {
-      String errorMessage = 'Error al enviar el correo de cambio de contraseña';
-      if (e.toString().contains('weak-password')) {
-        errorMessage = 'La contraseña es demasiado débil';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
     }
   }
 
@@ -127,11 +82,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       await _auth.signOut();
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al cerrar sesión: $e')));
+      if (mounted) {
+        // Verificar si el widget está montado antes de mostrar el SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cerrar sesión: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -346,44 +307,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showChangeEmailDialog() {
-    final TextEditingController currentPasswordController =
-        TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cambiar Correo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Nuevo correo'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: currentPasswordController,
-              decoration: const InputDecoration(labelText: 'Contraseña actual'),
-              obscureText: true,
-            ),
-          ],
+        content: const Text(
+          'Se enviará un correo electrónico a tu dirección actual con las instrucciones para cambiar tu correo.',
+          style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              currentPasswordController.dispose();
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              _passwordController.text = currentPasswordController.text;
-              _changeEmail();
-              currentPasswordController.dispose();
+              final user = _auth.currentUser;
+              if (user != null) {
+                _auth.sendPasswordResetEmail(email: user.email!);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Se ha enviado un correo con las instrucciones para cambiar tu correo electrónico',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
               Navigator.pop(context);
             },
-            child: const Text('Guardar'),
+            child: const Text('Enviar Correo'),
           ),
         ],
       ),
@@ -395,10 +348,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cambiar Contraseña'),
-        content: TextField(
-          controller: _passwordController,
-          decoration: const InputDecoration(labelText: 'Nueva contraseña'),
-          obscureText: true,
+        content: const Text(
+          'Se enviará un correo electrónico a tu dirección con las instrucciones para cambiar tu contraseña.',
+          style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
         ),
         actions: [
           TextButton(
@@ -407,10 +359,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           TextButton(
             onPressed: () {
-              _changePassword();
+              final user = _auth.currentUser;
+              if (user != null) {
+                _auth.sendPasswordResetEmail(email: user.email!);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Se ha enviado un correo con las instrucciones para cambiar tu contraseña',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
               Navigator.pop(context);
             },
-            child: const Text('Guardar'),
+            child: const Text('Enviar Correo'),
           ),
         ],
       ),

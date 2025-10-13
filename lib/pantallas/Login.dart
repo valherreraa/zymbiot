@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
         // ignore: use_build_context_synchronously
-        Navigator.pushNamed(context, '/congrats');
+        Navigator.pushReplacementNamed(context, '/principal');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signInWithGoogle() async {
     try {
+      // Desconectar cualquier sesión previa de Google
+      await _googleSignIn.signOut();
+
+      // Forzar la selección de cuenta mostrando el selector
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
