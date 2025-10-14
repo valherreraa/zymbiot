@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, ingresa tu correo electrónico'),
-          backgroundColor: Colors.orange,
+          backgroundColor: Color.fromARGB(255, 209, 185, 249),
         ),
       );
       return;
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               content: Text(
                 'Por favor, verifica tu correo electrónico antes de iniciar sesión',
               ),
-              backgroundColor: Colors.orange,
+              backgroundColor: Color.fromARGB(255, 209, 185, 249),
             ),
           );
           await userCredential.user!.sendEmailVerification();
