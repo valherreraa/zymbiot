@@ -66,7 +66,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Imagen guardada correctamente'),
-              backgroundColor: Colors.green,
+              backgroundColor: Color.fromARGB(255, 209, 185, 249),
             ),
           );
         }
@@ -115,7 +115,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Imagen subida correctamente'),
-              backgroundColor: Colors.green,
+              backgroundColor: Color.fromARGB(255, 209, 185, 249),
             ),
           );
         }

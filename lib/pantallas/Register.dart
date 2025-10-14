@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             content: Text(
               'Se ha enviado un correo de verificación a tu cuenta. Por favor, verifica tu correo antes de iniciar sesión.',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Color.fromARGB(255, 209, 185, 249),
             duration: Duration(seconds: 5),
           ),
         );

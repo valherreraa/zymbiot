@@ -61,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Perfil actualizado correctamente'),
-              backgroundColor: Colors.green,
+              backgroundColor: Color.fromARGB(255, 209, 185, 249),
             ),
           );
         }
@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const SizedBox(height: 40),
                     CircleAvatar(
-                      radius: 50,
+                      radius: 60,
                       backgroundImage: AssetImage(_selectedAvatar),
                     ),
                     const SizedBox(height: 16),
@@ -330,7 +330,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     content: Text(
                       'Se ha enviado un correo con las instrucciones para cambiar tu correo electrónico',
                     ),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Color.fromARGB(255, 209, 185, 249),
                   ),
                 );
               }
@@ -367,7 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     content: Text(
                       'Se ha enviado un correo con las instrucciones para cambiar tu contraseña',
                     ),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Color.fromARGB(255, 209, 185, 249),
                   ),
                 );
               }
