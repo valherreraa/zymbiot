@@ -8,14 +8,12 @@ class RoboflowService {
   // API Base URL
   static const String _apiUrl = "https://detect.roboflow.com";
 
-  // Tu API key de Roboflow (asegúrate de que sea la correcta)
+  // API key de Roboflow
   static const String _apiKey = "rf_ByLqCZZ7COTvA3Yc8TP5vz3pPEV2";
 
-  // Workspace y modelo
-  static const String _workspace = "portaplacas";
-  static const String _version = "3";
-  static const String _model = "detect-count-and-visualize";
-
+  // Proyecto y versión del modelo
+  static const String _projectId = "portaplacas";
+  static const String _modelVersion = "3";
   Future<String> _getLocalPath() async {
     final directory = await getApplicationDocumentsDirectory();
     final analysisDir = Directory('${directory.path}/analyses');
@@ -32,12 +30,12 @@ class RoboflowService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final localPath = await _getLocalPath();
 
-    // Copiar la imagen al directorio local
+    // Copia la imagen al directorio local
     final String imageName = 'image_$timestamp.jpg';
     final String localImagePath = path.join(localPath, imageName);
     await File(imageFilePath).copy(localImagePath);
 
-    // Guardar los resultados en un archivo JSON
+    // Guardar resultados en un archivo JSON
     final String resultsName = 'results_$timestamp.json';
     final String resultsPath = path.join(localPath, resultsName);
     await File(resultsPath).writeAsString(
@@ -67,21 +65,27 @@ class RoboflowService {
       final String base64Image = base64Encode(imageBytes);
       print('Imagen convertida a base64. Longitud: ${base64Image.length}');
 
-      // Construir la URL con el formato correcto para la API HTTP
-      final url = Uri.parse('$_apiUrl/$_workspace/$_model/$_version');
+      // Construir la URL para la API de workflows
+      final url = Uri.parse(
+        'https://serverless.roboflow.com/infer/workflows/$_projectId/detect-count-and-visualize-3',
+      );
       print('Enviando petición a Roboflow URL: ${url.toString()}');
 
-      // Preparar el cuerpo de la petición
-      final imageData = 'data:image/jpeg;base64,$base64Image';
-      final requestBody = jsonEncode({'api_key': _apiKey, 'image': imageData});
+      // Preparar el cuerpo de la petición en formato JSON
+      final requestBody = jsonEncode({
+        'api_key': _apiKey,
+        'inputs': {
+          'image': {
+            'type': 'base64',
+            'value': 'data:image/jpeg;base64,$base64Image',
+          },
+        },
+      });
 
-      // Enviar la petición
+      // Enviar la petición usando JSON
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
 
