@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
 import 'dart:io';
+import '../services/roboflow_service.dart';
 import 'Profile.dart';
 import 'Files.dart';
 import 'Settings.dart';
@@ -18,6 +17,7 @@ class PrincipalScreen extends StatefulWidget {
 class _PrincipalScreenState extends State<PrincipalScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
+  final RoboflowService _roboflowService = RoboflowService();
   String? _userName;
 
   @override
@@ -47,29 +47,26 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
               const Center(child: CircularProgressIndicator()),
         );
 
-        // Subir la imagen a Firebase Storage
-        final user = _auth.currentUser;
-        if (user != null) {
-          final storageRef = FirebaseStorage.instance
-              .ref()
-              .child('user_files/${user.uid}')
-              .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+        final file = File(photo.path);
 
-          final file = File(photo.path);
-          await storageRef.putFile(file);
-          final downloadUrl = await storageRef.getDownloadURL();
+        // Analizar la imagen con Roboflow
+        final apiResponse = await _roboflowService.analyzeImage(file);
+        final results = _roboflowService.processResults(apiResponse);
 
-          // Cerrar el indicador de carga
-          Navigator.pop(context);
+        // Guardar localmente
+        await _roboflowService.saveAnalysisResults(results, file.path);
 
-          // Mostrar mensaje de éxito
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Imagen guardada correctamente'),
-              backgroundColor: Color.fromARGB(255, 209, 185, 249),
-            ),
-          );
-        }
+        // Cerrar el indicador de carga
+        Navigator.pop(context);
+
+        // Mostrar mensaje de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Imagen analizada y guardada correctamente'),
+            backgroundColor: Color.fromARGB(255, 209, 185, 249),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
       // Cerrar el indicador de carga si hay error
@@ -79,6 +76,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         SnackBar(
           content: Text('Error: ${e.toString()}'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
         ),
       );
     }
@@ -96,40 +94,39 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
               const Center(child: CircularProgressIndicator()),
         );
 
-        // Subir la imagen a Firebase Storage
-        final user = _auth.currentUser;
-        if (user != null) {
-          final storageRef = FirebaseStorage.instance
-              .ref()
-              .child('user_files/${user.uid}')
-              .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+        final file = File(image.path);
 
-          final file = File(image.path);
-          await storageRef.putFile(file);
-          final downloadUrl = await storageRef.getDownloadURL();
+        // Analizar la imagen con Roboflow
+        final apiResponse = await _roboflowService.analyzeImage(file);
+        final results = _roboflowService.processResults(apiResponse);
 
-          // Cerrar el indicador de carga
-          Navigator.pop(context);
+        // Guardar localmente
+        await _roboflowService.saveAnalysisResults(results, file.path);
 
-          // Mostrar mensaje de éxito
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Imagen subida correctamente'),
-              backgroundColor: Color.fromARGB(255, 209, 185, 249),
-            ),
-          );
-        }
+        // Cerrar el indicador de carga
+        Navigator.pop(context);
+
+        // Mostrar mensaje de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Imagen analizada y guardada correctamente'),
+            backgroundColor: Color.fromARGB(255, 209, 185, 249),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
       // Cerrar el indicador de carga si hay error
-      Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
