@@ -65,45 +65,41 @@ class RoboflowService {
       final String base64Image = base64Encode(imageBytes);
       print('Imagen convertida a base64. Longitud: ${base64Image.length}');
 
+      final payload = base64Image.startsWith('data:image')
+          ? base64Image
+          : 'data:image/jpeg;base64,$base64Image';
+
       // Construir la URL para la API de workflows
+      // final url = Uri.parse(
+      //   'https://serverless.roboflow.com/infer/workflows/$_projectId/detect-count-and-visualize-3',
+      // );
       final url = Uri.parse(
-        'https://serverless.roboflow.com/infer/workflows/$_projectId/detect-count-and-visualize-3',
+        'https://serverless.roboflow.com/culture-media-3lxam/1'
+        '?api_key=yeWujAFWX0ZvG0wwu4Fs'
+        '&format=json'
       );
       print('Enviando petición a Roboflow URL: ${url.toString()}');
 
       // Preparar el cuerpo de la petición en formato JSON
-      final requestBody = jsonEncode({
-        'api_key': _apiKey,
-        'inputs': {
-          'image': {
-            'type': 'base64',
-            'value': 'data:image/jpeg;base64,$base64Image',
-          },
-        },
-      });
-
-      // Enviar la petición usando JSON
-      final response = await http.post(
+      print('POST $url');
+      final resp = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: requestBody,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: payload,
       );
+      print('Respuesta recibida. Código de estado: ${resp.statusCode}');
 
-      print('Respuesta recibida. Código de estado: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print('Respuesta exitosa de la API');
-        return responseData;
+      if(resp.statusCode == 200) {
+        return json.decode(resp.body) as Map<String, dynamic>;
       } else {
-        print('Error en la respuesta: ${response.body}');
+        print('Error en la respuesta: ${resp.body}');
         throw Exception(
-          'Error en la API: ${response.statusCode} - ${response.body}',
+          'Error en la API: ${resp.statusCode} - ${resp.body}',
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       print('Error detallado: $e');
-      print('Stack trace: $stackTrace');
+      print('Stack trace: $st');
       throw Exception('Error al analizar la imagen: $e');
     }
   }
@@ -136,3 +132,63 @@ class RoboflowService {
     };
   }
 }
+
+  //           'value': 'data:image/jpeg;base64,$base64Image',
+  //         },
+  //       },
+  //     });
+
+  //     // Enviar la petición usando JSON
+  //     final response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: requestBody,
+  //     );
+
+  //     print('Respuesta recibida. Código de estado: ${response.statusCode}');
+
+  //     if (response.statusCode == 200) {
+  //       final responseData = json.decode(response.body);
+  //       print('Respuesta exitosa de la API');
+  //       return responseData;
+  //     } else {
+  //       print('Error en la respuesta: ${response.body}');
+  //       throw Exception(
+  //         'Error en la API: ${response.statusCode} - ${response.body}',
+  //       );
+  //     }
+  //   } catch (e, stackTrace) {
+  //     print('Error detallado: $e');
+  //     print('Stack trace: $stackTrace');
+  //     throw Exception('Error al analizar la imagen: $e');
+  //   }
+  // }
+
+  // Método para procesar los resultados
+  Map<String, dynamic> processResults(Map<String, dynamic> apiResponse) {
+    // Extraer las predicciones
+    final predictions = apiResponse['predictions'] as List? ?? [];
+
+    return {
+      'predictions': predictions,
+      'detected_objects': predictions
+          .map(
+            (pred) => {
+              'class': pred['class'],
+              'confidence': pred['confidence'],
+              'bbox': {
+                'x':
+                    pred['x'] -
+                    (pred['width'] /
+                        2), // Convertir a formato x,y esquina superior izquierda
+                'y': pred['y'] - (pred['height'] / 2),
+                'width': pred['width'],
+                'height': pred['height'],
+              },
+            },
+          )
+          .toList(),
+      'time': DateTime.now().millisecondsSinceEpoch,
+    };
+  }
+
