@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/roboflow_service.dart';
+import '../services/analysis.dart';
 import 'Profile.dart';
 import 'Files.dart';
 import 'Settings.dart';
@@ -18,6 +19,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
   final RoboflowService _roboflowService = RoboflowService();
+  final ZymbiotAnalysisService _analysisService = ZymbiotAnalysisService();
   String? _userName;
 
   @override
@@ -51,20 +53,32 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
 
         // Analizar la imagen con Roboflow
         final apiResponse = await _roboflowService.analyzeImage(file);
-        final results = _roboflowService.processResults(apiResponse);
 
-        // Guardar localmente
-        await _roboflowService.saveAnalysisResults(results, file.path);
+        // Procesar resultados y generar PDF
+        final analysisResults = await _analysisService.analizarResultadosJSON(
+          apiResponse,
+          file,
+        );
 
         // Cerrar el indicador de carga
         Navigator.pop(context);
 
-        // Mostrar mensaje de éxito
+        // Mostrar mensaje de éxito con detalles
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Imagen analizada y guardada correctamente'),
-            backgroundColor: Color.fromARGB(255, 209, 185, 249),
-            duration: Duration(seconds: 3),
+          SnackBar(
+            content: Text(
+              'Análisis completo! ${analysisResults['total_detectado']} halos detectados. PDF generado.',
+            ),
+            backgroundColor: const Color.fromARGB(255, 209, 185, 249),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Ver archivos',
+              onPressed: () {
+                // TODO: Navegar a pantalla de archivos generados
+                print('PDF: ${analysisResults['pdf_reporte']}');
+                print('Imagen: ${analysisResults['imagen_anotada']}');
+              },
+            ),
           ),
         );
       }
@@ -98,20 +112,32 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
 
         // Analizar la imagen con Roboflow
         final apiResponse = await _roboflowService.analyzeImage(file);
-        final results = _roboflowService.processResults(apiResponse);
 
-        // Guardar localmente
-        await _roboflowService.saveAnalysisResults(results, file.path);
+        // Procesar resultados y generar PDF
+        final analysisResults = await _analysisService.analizarResultadosJSON(
+          apiResponse,
+          file,
+        );
 
         // Cerrar el indicador de carga
         Navigator.pop(context);
 
-        // Mostrar mensaje de éxito
+        // Mostrar mensaje de éxito con detalles
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Imagen analizada y guardada correctamente'),
-            backgroundColor: Color.fromARGB(255, 209, 185, 249),
-            duration: Duration(seconds: 3),
+          SnackBar(
+            content: Text(
+              'Análisis completo! ${analysisResults['total_detectado']} halos detectados. PDF generado.',
+            ),
+            backgroundColor: const Color.fromARGB(255, 209, 185, 249),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Ver archivos',
+              onPressed: () {
+                // TODO: Navegar a pantalla de archivos generados
+                print('PDF: ${analysisResults['pdf_reporte']}');
+                print('Imagen: ${analysisResults['imagen_anotada']}');
+              },
+            ),
           ),
         );
       }
