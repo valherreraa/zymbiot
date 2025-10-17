@@ -7,9 +7,9 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
 
 class ZymbiotAnalysisService {
-  // ===============================================
-  // 📁 GESTIÓN DE DIRECTORIOS LOCALES
-  // ===============================================
+  
+  // GESTIÓN DE DIRECTORIOS LOCALES
+
   Future<String> _getLocalPath() async {
     final directory = await getApplicationDocumentsDirectory();
     final analysisDir = Directory('${directory.path}/analysis_results');
@@ -19,9 +19,8 @@ class ZymbiotAnalysisService {
     return analysisDir.path;
   }
 
-  // ===============================================
-  // 🧠 FUNCIÓN PRINCIPAL PARA ANALIZAR RESULTADOS JSON
-  // ===============================================
+  // FUNCIÓN PRINCIPAL PARA ANALIZAR RESULTADOS JSON
+
   Future<Map<String, dynamic>> analizarResultadosJSON(
     Map<String, dynamic> roboflowResponse,
     File imagenOriginal,
@@ -80,17 +79,13 @@ class ZymbiotAnalysisService {
     }
   }
 
-  // ===============================================
-  // 📏 CONVERSIÓN DE ESCALA PIXELES → MILÍMETROS
-  // ===============================================
+  // CONVERSIÓN DE ESCALA PIXELES → MILÍMETROS
   double calcularEscalaMM(double anchoPx) {
     const double diametroPlacaMM = 90.0; // diámetro real de la placa
     return diametroPlacaMM / anchoPx;
   }
 
-  // ===============================================
-  // 🧮 CÁLCULOS GEOMÉTRICOS
-  // ===============================================
+  // CÁLCULOS GEOMÉTRICOS
   double calcularArea(List<Map<String, double>> puntos) {
     if (puntos.length < 3) return 0.0;
 
@@ -142,9 +137,8 @@ class ZymbiotAnalysisService {
     return 2 * pi * radio;
   }
 
-  // ===============================================
-  // 🧩 PROCESAR RESPUESTA DEL MODELO ROBOFLOW
-  // ===============================================
+  // PROCESAR RESPUESTA DEL MODELO ROBOFLOW
+
   List<Map<String, dynamic>> procesarResultados(
     Map<String, dynamic> roboflowResponse,
     double anchoImagenPx,
@@ -211,9 +205,8 @@ class ZymbiotAnalysisService {
     return resultados;
   }
 
-  // ===============================================
-  // 🖊️ CREAR IMAGEN ANOTADA CON IDs
-  // ===============================================
+  // CREAR IMAGEN ANOTADA CON IDs
+
   Future<File> generarImagenConIDs(
     File imagenOriginal,
     List<Map<String, dynamic>> resultados,
@@ -266,9 +259,8 @@ class ZymbiotAnalysisService {
     return anotada;
   }
 
-  // ===============================================
-  // 🧾 GENERAR PDF FINAL
-  // ===============================================
+  // GENERAR PDF FINAL
+
   Future<File> generarPDF(
     List<Map<String, dynamic>> resultados,
     File imagenOriginal,
@@ -398,9 +390,8 @@ class ZymbiotAnalysisService {
     return file;
   }
 
-  // ===============================================
-  // 💾 GUARDAR RESULTADOS COMPLETOS
-  // ===============================================
+  // GUARDAR RESULTADOS COMPLETOS
+
   Future<File> guardarResultadosCompletos(
     Map<String, dynamic> roboflowResponse,
     List<Map<String, dynamic>> resultados,
@@ -441,9 +432,8 @@ class ZymbiotAnalysisService {
     return file;
   }
 
-  // ===============================================
-  // 📋 LISTAR ANÁLISIS GUARDADOS
-  // ===============================================
+  // LISTAR ANÁLISIS GUARDADOS
+
   Future<List<Map<String, dynamic>>> listarAnalisisGuardados() async {
     try {
       final localPath = await _getLocalPath();
@@ -492,17 +482,15 @@ class ZymbiotAnalysisService {
     }
   }
 
-  // ===============================================
-  // 📁 OBTENER RUTA DE ARCHIVO DE ANÁLISIS
-  // ===============================================
+  // OBTENER RUTA DE ARCHIVO DE ANÁLISIS
+
   Future<String> getRutaAnalisis(String nombreArchivo) async {
     final localPath = await _getLocalPath();
     return '$localPath/$nombreArchivo';
   }
 
-  // ===============================================
-  // 🛠️ MÉTODO DE DEPURACIÓN - VERIFICAR ARCHIVOS
-  // ===============================================
+  // MÉTODO DE DEPURACIÓN - VERIFICAR ARCHIVOS
+
   Future<Map<String, bool>> verificarArchivosExisten(
     Map<String, dynamic> analysis,
   ) async {
