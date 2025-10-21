@@ -21,6 +21,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   final RoboflowService _roboflowService = RoboflowService();
   final ZymbiotAnalysisService _analysisService = ZymbiotAnalysisService();
   String? _userName;
+  String? _userAvatar;
 
   @override
   void initState() {
@@ -28,11 +29,23 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
     _loadUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Recargar datos cuando regresamos a esta pantalla
+    _loadUserData();
+  }
+
   Future<void> _loadUserData() async {
     final user = _auth.currentUser;
     if (user != null) {
+      // Recargar el usuario para obtener los datos más recientes
+      await user.reload();
+      final freshUser = _auth.currentUser;
+
       setState(() {
-        _userName = user.displayName ?? 'Usuario';
+        _userName = freshUser?.displayName ?? 'Usuario';
+        _userAvatar = freshUser?.photoURL ?? 'assets/avatar.png';
       });
     }
   }
@@ -178,8 +191,10 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
-                        backgroundImage: AssetImage('assets/avatar.png'),
+                      CircleAvatar(
+                        backgroundImage: AssetImage(
+                          _userAvatar ?? 'assets/avatar.png',
+                        ),
                         radius: 20,
                       ),
                       IconButton(
@@ -278,13 +293,15 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.person_outline, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ProfileScreen(),
                         ),
                       );
+                      // Recargar datos cuando regresamos del perfil
+                      _loadUserData();
                     },
                   ),
                   IconButton(

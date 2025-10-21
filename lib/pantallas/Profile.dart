@@ -54,8 +54,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Recargar el usuario para obtener los cambios más recientes
         await user.reload();
 
-        // Actualizar el estado local
-        setState(() {});
+        // Actualizar el estado local con los nuevos datos
+        await _loadUserData();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -97,55 +97,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showEditDialog() {
+    // Crear una copia temporal para el diálogo
+    String tempSelectedAvatar = _selectedAvatar;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar Perfil'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de usuario',
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Editar Perfil'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre de usuario',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text('Seleccionar avatar:'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: _avatarOptions
-                    .map(
-                      (avatar) => GestureDetector(
-                        onTap: () {
-                          setState(() => _selectedAvatar = avatar);
-                          Navigator.pop(context);
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundImage: AssetImage(avatar),
+                const SizedBox(height: 16),
+                const Text('Seleccionar avatar:'),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: _avatarOptions
+                      .map(
+                        (avatar) => GestureDetector(
+                          onTap: () {
+                            setDialogState(() {
+                              tempSelectedAvatar = avatar;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: tempSelectedAvatar == avatar
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: AssetImage(avatar),
+                            ),
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Actualizar el avatar seleccionado
+                setState(() {
+                  _selectedAvatar = tempSelectedAvatar;
+                });
+
+                // Guardar los cambios
+                await _updateProfile();
+                Navigator.pop(context);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              _updateProfile();
-              Navigator.pop(context);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
       ),
     );
   }

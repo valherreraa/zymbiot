@@ -117,7 +117,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         children: [
           // Fondo de pantalla
           Positioned.fill(
-            child: Image.asset('assets/bg.png', fit: BoxFit.cover),
+            child: Image.asset('assets/bg2.png', fit: BoxFit.cover),
           ),
           Container(color: Colors.black.withOpacity(0.5)),
 
