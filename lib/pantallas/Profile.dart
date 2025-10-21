@@ -18,7 +18,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ];
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   @override
   void initState() {
     super.initState();
