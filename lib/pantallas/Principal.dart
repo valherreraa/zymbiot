@@ -199,7 +199,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                   const SizedBox(height: 40),
 
                   Text(
-                    'Hello, ${_userName ?? "Usuario"}!',
+                    'Hola, ${_userName ?? "Usuario"}!',
                     style: const TextStyle(
                       fontSize: 35,
                       fontWeight: FontWeight.bold,
@@ -208,7 +208,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Welcome back to Zymbiot',
+                    'Bienvenido a Zymbiot',
                     style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
 
@@ -228,7 +228,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Scan with camera',
+                        'Abrir Cámara',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -251,7 +251,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Upload image',
+                        'Subir Imagen',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),

@@ -75,6 +75,7 @@ flutter:
     - assets/placa.png
     - assets/Icon.png
     - assets/Logo-Blanco.png
+    - assets/Logo-Negro.png
     - assets/bg.png
     - assets/bg3.gif
   fonts:

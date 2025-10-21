@@ -39,18 +39,7 @@ class HomeScreen extends StatelessWidget {
                       fit: BoxFit.contain,
                     ),
 
-                    const SizedBox(height: 12),
-
-                    // Eslogan
-                    const Text(
-                      '\n\nPrecisión microbiológica\nen la palma de tu mano',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFFCCCCCC),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
+                    const SizedBox(height: 40),
 
                     const SizedBox(height: 48),
 

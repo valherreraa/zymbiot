@@ -18,7 +18,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
+  bool _isPasswordValid(String password) {
+    // Al menos 6 caracteres
+    if (password.length < 6) return false;
+
+    // Debe contener al menos una letra minúscula
+    if (!password.contains(RegExp(r'[a-z]'))) return false;
+
+    // Debe contener al menos una letra mayúscula
+    if (!password.contains(RegExp(r'[A-Z]'))) return false;
+
+    // Debe contener al menos un número
+    if (!password.contains(RegExp(r'[0-9]'))) return false;
+
+    // Debe contener al menos un carácter especial
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) return false;
+
+    return true;
+  }
+
+  String _getPasswordRequirements() {
+    return 'La contraseña debe contener:\n'
+        '• Al menos 6 caracteres\n'
+        '• Una letra minúscula (a-z)\n'
+        '• Una letra mayúscula (A-Z)\n'
+        '• Un número (0-9)\n'
+        '• Un carácter especial (!@#\$%^&*...)';
+  }
+
   Future<void> _register() async {
+    // Validar formato de contraseña
+    if (!_isPasswordValid(_passwordController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_getPasswordRequirements()),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -63,6 +103,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _signInWithGoogle() async {
     try {
+      // Cerrar sesión anterior para forzar selección de cuenta
+      await _googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
@@ -161,7 +204,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
                     // Confirm Password
                     TextField(
@@ -183,6 +226,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
+
+                     // Requisitos de contraseña
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: const Text(
+                        'La contraseña debe tener al menos 6 caracteres e incluir:\n'
+                        '• Una minúscula (a-z) • Una mayúscula (A-Z)\n'
+                        '• Un número (0-9) • Un carácter especial (!@#\$%...)',
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 11,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // Botón Register
                     ElevatedButton(

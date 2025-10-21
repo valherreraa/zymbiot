@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
                   content: const SingleChildScrollView(
                     child: Text(
                       'Aquí va el texto del aviso de privacidad...',
-                      // TODO: Agregar el texto completo del aviso de privacidad
+                      style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
                     ),
                   ),
                   actions: [
@@ -53,8 +53,9 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         Text('Versión: 2.0.0'),
                         SizedBox(height: 8),
-                        Text('Zymbiot es una aplicación para...'),
-                        // TODO: Agregar más información sobre la app
+                        Text('Zymbiot es una aplicación móvil desarrollada para automatizar el análisis de halos de lisis en placas Petri mediante visión por computadora e inteligencia artificial. Su objetivo es facilitar la evaluación de la eficiencia de fagos y otros agentes antimicrobianos, reduciendo la subjetividad y el tiempo requeridos en los análisis manuales.',
+                          style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+                        ),
                       ],
                     ),
                   ),

@@ -7,6 +7,7 @@ import 'pantallas/Congrats.dart';
 import 'pantallas/NavigationBar.dart';
 import 'pantallas/Profile.dart';
 import 'pantallas/Library.dart';
+import 'pantallas/Files.dart';
 
 // Firebase
 import 'package:firebase_core/firebase_core.dart';
@@ -42,6 +43,7 @@ class ZymbiotApp extends StatelessWidget {
         '/customnavigationBar': (context) => const CustomNavigationBar(),
         '/profile': (context) => const ProfileScreen(),
         '/library': (context) => const LibraryScreen(),
+        '/files': (context) => const FilesScreen(),
       },
     );
   }

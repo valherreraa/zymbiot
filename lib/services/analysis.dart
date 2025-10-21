@@ -1,18 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
 
 class ZymbiotAnalysisService {
-  
   // GESTIÓN DE DIRECTORIOS LOCALES
 
   Future<String> _getLocalPath() async {
     final directory = await getApplicationDocumentsDirectory();
-    final analysisDir = Directory('${directory.path}/analysis_results');
+
+    // Obtener el usuario actual
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid ?? 'anonymous';
+
+    final analysisDir = Directory('${directory.path}/analysis_results/$userId');
     if (!await analysisDir.exists()) {
       await analysisDir.create(recursive: true);
     }
@@ -275,13 +281,30 @@ class ZymbiotAnalysisService {
     final imagenOriginalBytes = await imagenOriginal.readAsBytes();
     final imagenAnotadaBytes = await imagenAnotada.readAsBytes();
 
+    // Cargar logo desde assets
+    pw.ImageProvider? logoImage;
+    try {
+      final logoBytes = await rootBundle.load('assets/Logo-Negro.png');
+      logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+    } catch (e) {
+      print('No se pudo cargar el logo: $e');
+    }
+
     pdf.addPage(
       pw.MultiPage(
         build: (context) => [
+          // Logo en el encabezado
+          if (logoImage != null) ...[
+            pw.Center(
+              child: pw.Container(height: 80, child: pw.Image(logoImage)),
+            ),
+            pw.SizedBox(height: 20),
+          ],
+
           // Título
           pw.Center(
             child: pw.Text(
-              "Resultados del análisis de halos de lisis",
+              "Resultados del análisis",
               style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
             ),
           ),
@@ -400,9 +423,18 @@ class ZymbiotAnalysisService {
   ) async {
     final localPath = await _getLocalPath();
 
+    // Obtener información del usuario
+    final user = FirebaseAuth.instance.currentUser;
+    final userInfo = {
+      'uid': user?.uid ?? 'anonymous',
+      'email': user?.email ?? 'no-email',
+      'displayName': user?.displayName ?? 'Usuario',
+    };
+
     final resultadosCompletos = {
       'timestamp': timestamp,
       'fecha': DateTime.now().toIso8601String(),
+      'usuario': userInfo,
       'imagen_original': imagenPath,
       'archivos_generados': {
         'pdf': 'reporte_halos_$timestamp.pdf',
@@ -459,15 +491,25 @@ class ZymbiotAnalysisService {
         try {
           final content = await file.readAsString();
           final data = jsonDecode(content);
-          analisis.add({
-            'archivo': file.path,
-            'fecha': data['fecha'],
-            'total_halos': data['estadisticas']['total_halos'],
-            'diametro_promedio': data['estadisticas']['diametro_promedio'],
-            'area_total': data['estadisticas']['area_total'],
-            'timestamp': data['timestamp'],
-            'archivos_generados': data['archivos_generados'] ?? {},
-          });
+
+          // Verificar que el análisis pertenece al usuario actual
+          final user = FirebaseAuth.instance.currentUser;
+          final currentUserId = user?.uid ?? 'anonymous';
+          final analysisUserId = data['usuario']?['uid'] ?? 'legacy';
+
+          // Solo incluir análisis del usuario actual
+          if (analysisUserId == currentUserId || analysisUserId == 'legacy') {
+            analisis.add({
+              'archivo': file.path,
+              'fecha': data['fecha'],
+              'total_halos': data['estadisticas']['total_halos'],
+              'diametro_promedio': data['estadisticas']['diametro_promedio'],
+              'area_total': data['estadisticas']['area_total'],
+              'timestamp': data['timestamp'],
+              'archivos_generados': data['archivos_generados'] ?? {},
+              'usuario': data['usuario'] ?? {'uid': 'legacy'},
+            });
+          }
         } catch (e) {
           print('Error leyendo archivo ${file.path}: $e');
         }
@@ -527,5 +569,51 @@ class ZymbiotAnalysisService {
     }
 
     return resultado;
+  }
+
+  // ===============================================
+  // 🗑️ ELIMINAR ANÁLISIS Y ARCHIVOS RELACIONADOS
+  // ===============================================
+  Future<void> eliminarAnalisis(Map<String, dynamic> analysis) async {
+    try {
+      // Eliminar archivo JSON principal
+      final jsonFile = File(analysis['archivo']);
+      if (await jsonFile.exists()) {
+        await jsonFile.delete();
+        print('Archivo JSON eliminado: ${jsonFile.path}');
+      }
+
+      // Eliminar archivos relacionados si están disponibles
+      if (analysis['archivos_generados'] != null) {
+        final archivosGenerados = analysis['archivos_generados'];
+
+        // Eliminar PDF
+        if (archivosGenerados['pdf'] != null) {
+          final rutaPDF = await getRutaAnalisis(archivosGenerados['pdf']);
+          final pdfFile = File(rutaPDF);
+          if (await pdfFile.exists()) {
+            await pdfFile.delete();
+            print('PDF eliminado: $rutaPDF');
+          }
+        }
+
+        // Eliminar imagen anotada
+        if (archivosGenerados['imagen_anotada'] != null) {
+          final rutaImagen = await getRutaAnalisis(
+            archivosGenerados['imagen_anotada'],
+          );
+          final imagenFile = File(rutaImagen);
+          if (await imagenFile.exists()) {
+            await imagenFile.delete();
+            print('Imagen eliminada: $rutaImagen');
+          }
+        }
+      }
+
+      print('Análisis eliminado completamente');
+    } catch (e) {
+      print('Error eliminando análisis: $e');
+      throw Exception('Error al eliminar análisis: $e');
+    }
   }
 }
