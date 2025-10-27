@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'PrivacyPolicy.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -16,30 +17,16 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.warning_rounded),
             title: const Text('Aviso de Privacidad'),
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Aviso de Privacidad'),
-                  content: const SingleChildScrollView(
-                    child: Text(
-                      'Aquí va el texto del aviso de privacidad...',
-                      style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cerrar'),
-                    ),
-                  ],
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyScreen(),
                 ),
               );
             },
           ),
           ListTile(
-            leading: const Icon(
-              Icons.announcement_rounded,
-            ),
+            leading: const Icon(Icons.announcement_rounded),
             title: const Text('Acerca de la App'),
             onTap: () {
               showDialog(
@@ -53,7 +40,8 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         Text('Versión: 2.0.0'),
                         SizedBox(height: 8),
-                        Text('Zymbiot es una aplicación móvil desarrollada para automatizar el análisis de halos de lisis en placas Petri mediante visión por computadora e inteligencia artificial. Su objetivo es facilitar la evaluación de la eficiencia de fagos y otros agentes antimicrobianos, reduciendo la subjetividad y el tiempo requeridos en los análisis manuales.',
+                        Text(
+                          'Zymbiot es una aplicación móvil desarrollada para automatizar el análisis de halos de lisis en placas Petri mediante visión por computadora e inteligencia artificial. Su objetivo es facilitar la evaluación de la eficiencia de fagos y otros agentes antimicrobianos, reduciendo la subjetividad y el tiempo requeridos en los análisis manuales.',
                           style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
                         ),
                       ],
