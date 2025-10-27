@@ -76,7 +76,7 @@ class HomeScreen extends StatelessWidget {
                         Navigator.pushNamed(context, '/register');
                       },
                       child: const Text(
-                        'Create an account',
+                        'Crea una cuenta',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF64316B),

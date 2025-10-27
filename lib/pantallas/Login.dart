@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
-                      'Login to\nyour account',
+                      'Ingresa a\ntu cuenta',
                       style: TextStyle(
                         fontFamily: 'Orbitron',
                         fontSize: 28,
@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'hello@example.com',
+                        hintText: 'hola@ejemplo.com',
                         hintStyle: const TextStyle(
                           color: Colors.white70,
                           fontFamily: 'Poppins',
@@ -201,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: _resetPassword,
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: const Text(
-                          'Forgot your account?',
+                          '¿Olvidaste tu cuenta?',
                           style: TextStyle(
                             color: Color(0xFF64316B),
                             fontSize: 12,
@@ -243,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            'OR',
+                            'O',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
@@ -282,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(width: 12),
                             const Text(
-                              'Continue with Google',
+                              'Ingresa con Google',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

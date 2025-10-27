@@ -153,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
-                      'Create your\naccount',
+                      'Crea tu\ncuenta',
                       style: TextStyle(
                         fontFamily: 'Orbitron',
                         fontSize: 32,
@@ -169,7 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'hello@example.com',
+                        hintText: 'hola@ejemplo.com',
                         hintStyle: const TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Color(0xFF272531),
@@ -255,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Register',
+                        'Registrarse',
                         style: TextStyle(
                           fontFamily: 'Orbitron',
                           fontSize: 16,
@@ -272,7 +272,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            'OR',
+                            'O',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
@@ -311,7 +311,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(width: 12),
                             const Text(
-                              'Sign In with Google',
+                              'Ingresa con Google',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
