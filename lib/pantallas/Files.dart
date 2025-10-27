@@ -135,6 +135,50 @@ class _FilesScreenState extends State<FilesScreen> {
     }
   }
 
+  Future<void> _abrirExcel(Map<String, dynamic> analysis) async {
+    try {
+      String nombreExcel;
+
+      // Verificar si tenemos información de archivos generados
+      if (analysis['archivos_generados'] != null &&
+          analysis['archivos_generados']['excel'] != null) {
+        nombreExcel = analysis['archivos_generados']['excel'];
+      } else {
+        // Fallback: construir nombre desde el archivo JSON
+        final String nombreArchivo = analysis['archivo']
+            .split('/')
+            .last
+            .split('\\')
+            .last;
+        nombreExcel = nombreArchivo
+            .replaceAll('analisis_completo_', 'reporte_halos_')
+            .replaceAll('.json', '.xlsx');
+      }
+
+      final String rutaExcel = await _analysisService.getRutaAnalisis(
+        nombreExcel,
+      );
+      final file = File(rutaExcel);
+
+      if (await file.exists()) {
+        final result = await OpenFile.open(rutaExcel);
+        if (result.type != ResultType.done) {
+          _mostrarError('No se pudo abrir el Excel: ${result.message}');
+        }
+      } else {
+        // Verificar qué archivos existen para depuración
+        final verificacion = await _analysisService.verificarArchivosExisten(
+          analysis,
+        );
+        _mostrarError(
+          'El archivo Excel no existe: $nombreExcel\nVerificación: JSON=${verificacion['json']}, PDF=${verificacion['pdf']}, Excel=${verificacion['excel']}, Imagen=${verificacion['imagen']}',
+        );
+      }
+    } catch (e) {
+      _mostrarError('Error al abrir Excel: ${e.toString()}');
+    }
+  }
+
   void _mostrarError(String mensaje) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -161,6 +205,15 @@ class _FilesScreenState extends State<FilesScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   _abrirPDF(analysis);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.table_chart, color: Colors.green),
+                title: const Text('Ver Excel'),
+                subtitle: const Text('Abrir datos en formato Excel'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _abrirExcel(analysis);
                 },
               ),
               ListTile(
@@ -217,6 +270,13 @@ class _FilesScreenState extends State<FilesScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cerrar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _abrirExcel(analysis);
+              },
+              child: const Text('Ver Excel'),
             ),
             TextButton(
               onPressed: () {

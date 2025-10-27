@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
+import 'package:excel/excel.dart';
 
 class ZymbiotAnalysisService {
   // GESTIÓN DE DIRECTORIOS LOCALES
@@ -64,12 +65,16 @@ class ZymbiotAnalysisService {
         timestamp,
       );
 
+      // Generar Excel con timestamp único
+      final excelFile = await generarExcel(resultados, timestamp);
+
       // Guardar resultados completos con timestamp único
       await guardarResultadosCompletos(
         roboflowResponse,
         resultados,
         imagenOriginal.path,
         timestamp,
+        excelFile,
       );
 
       return {
@@ -77,6 +82,7 @@ class ZymbiotAnalysisService {
         'total_detectado': resultados.length,
         'imagen_anotada': imagenAnotada.path,
         'pdf_reporte': pdfFile.path,
+        'excel_reporte': excelFile.path,
         'timestamp': timestamp,
       };
     } catch (e) {
@@ -413,6 +419,173 @@ class ZymbiotAnalysisService {
     return file;
   }
 
+  // GENERAR ARCHIVO EXCEL
+
+  Future<File> generarExcel(
+    List<Map<String, dynamic>> resultados,
+    int timestamp,
+  ) async {
+    print('Generando Excel con ${resultados.length} resultados');
+
+    // Crear nuevo libro de Excel
+    var excel = Excel.createExcel();
+
+    // Eliminar hoja por defecto
+    excel.delete('Sheet1');
+
+    // Crear hoja de resultados
+    var sheet = excel['Análisis de Halos'];
+
+    // Configurar encabezados
+    var headers = [
+      'ID',
+      'Diámetro (mm)',
+      'Área (mm²)',
+      'Perímetro (mm)',
+      'Circularidad',
+      'Confianza (%)',
+      'Posición X',
+      'Posición Y',
+      'Clase',
+    ];
+
+    // Escribir encabezados
+    for (int i = 0; i < headers.length; i++) {
+      var cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0),
+      );
+      cell.value = TextCellValue(headers[i]);
+
+      // Estilo para encabezados
+      cell.cellStyle = CellStyle(
+        bold: true,
+        backgroundColorHex: ExcelColor.blue,
+        fontColorHex: ExcelColor.white,
+        horizontalAlign: HorizontalAlign.Center,
+        verticalAlign: VerticalAlign.Center,
+      );
+    }
+
+    // Escribir datos
+    for (int i = 0; i < resultados.length; i++) {
+      var halo = resultados[i];
+      var rowIndex = i + 1;
+
+      var data = [
+        halo["id"].toString(),
+        halo["diametro"].toStringAsFixed(2),
+        halo["area"].toStringAsFixed(2),
+        halo["perimetro"].toStringAsFixed(2),
+        halo["circularidad"].toStringAsFixed(3),
+        "${(halo["confidence"] * 100).toStringAsFixed(1)}%",
+        halo["x"].toStringAsFixed(1),
+        halo["y"].toStringAsFixed(1),
+        halo["class"] ?? 'unknown',
+      ];
+
+      for (int j = 0; j < data.length; j++) {
+        var cell = sheet.cell(
+          CellIndex.indexByColumnRow(columnIndex: j, rowIndex: rowIndex),
+        );
+        cell.value = TextCellValue(data[j]);
+
+        // Estilo para datos
+        cell.cellStyle = CellStyle(
+          horizontalAlign: HorizontalAlign.Center,
+          verticalAlign: VerticalAlign.Center,
+        );
+      }
+    }
+
+    // Crear hoja de resumen
+    var summarySheet = excel['Resumen'];
+
+    // Información del resumen
+    var summaryData = [
+      ['Análisis de Halos - Zymbiot', ''],
+      ['Fecha:', DateTime.now().toString().split('.')[0]],
+      ['Total de halos detectados:', resultados.length.toString()],
+      ['', ''],
+      ['Estadísticas:', ''],
+    ];
+
+    if (resultados.isNotEmpty) {
+      var diametroPromedio =
+          resultados.map((r) => r["diametro"]).reduce((a, b) => a + b) /
+          resultados.length;
+      var areaTotal = resultados.map((r) => r["area"]).reduce((a, b) => a + b);
+      var diametroMax = resultados
+          .map((r) => r["diametro"])
+          .reduce((a, b) => a > b ? a : b);
+      var diametroMin = resultados
+          .map((r) => r["diametro"])
+          .reduce((a, b) => a < b ? a : b);
+
+      summaryData.addAll([
+        ['Diámetro promedio (mm):', diametroPromedio.toStringAsFixed(2)],
+        ['Diámetro máximo (mm):', diametroMax.toStringAsFixed(2)],
+        ['Diámetro mínimo (mm):', diametroMin.toStringAsFixed(2)],
+        ['Área total (mm²):', areaTotal.toStringAsFixed(2)],
+      ]);
+    }
+
+    // Escribir datos del resumen
+    for (int i = 0; i < summaryData.length; i++) {
+      var row = summaryData[i];
+
+      var cellA = summarySheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i),
+      );
+      cellA.value = TextCellValue(row[0]);
+
+      if (row.length > 1 && row[1].isNotEmpty) {
+        var cellB = summarySheet.cell(
+          CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i),
+        );
+        cellB.value = TextCellValue(row[1]);
+      }
+
+      // Estilo especial para el título
+      if (i == 0) {
+        cellA.cellStyle = CellStyle(
+          bold: true,
+          fontSize: 16,
+          horizontalAlign: HorizontalAlign.Left,
+        );
+      }
+      // Estilo para etiquetas de sección
+      else if (row[0] == 'Estadísticas:') {
+        cellA.cellStyle = CellStyle(bold: true);
+      }
+    }
+
+    // Ajustar ancho de columnas
+    sheet.setColumnWidth(0, 8); // ID
+    sheet.setColumnWidth(1, 15); // Diámetro
+    sheet.setColumnWidth(2, 12); // Área
+    sheet.setColumnWidth(3, 15); // Perímetro
+    sheet.setColumnWidth(4, 12); // Circularidad
+    sheet.setColumnWidth(5, 12); // Confianza
+    sheet.setColumnWidth(6, 12); // Posición X
+    sheet.setColumnWidth(7, 12); // Posición Y
+    sheet.setColumnWidth(8, 10); // Clase
+
+    summarySheet.setColumnWidth(0, 25);
+    summarySheet.setColumnWidth(1, 15);
+
+    // Guardar archivo
+    final localPath = await _getLocalPath();
+    final file = File(path.join(localPath, 'reporte_halos_$timestamp.xlsx'));
+
+    var bytes = excel.save();
+    if (bytes != null) {
+      await file.writeAsBytes(bytes);
+    }
+
+    print('Excel guardado en: ${file.path}');
+    return file;
+  }
+
   // GUARDAR RESULTADOS COMPLETOS
 
   Future<File> guardarResultadosCompletos(
@@ -420,6 +593,7 @@ class ZymbiotAnalysisService {
     List<Map<String, dynamic>> resultados,
     String imagenPath,
     int timestamp,
+    File? excelFile,
   ) async {
     final localPath = await _getLocalPath();
 
@@ -438,6 +612,7 @@ class ZymbiotAnalysisService {
       'imagen_original': imagenPath,
       'archivos_generados': {
         'pdf': 'reporte_halos_$timestamp.pdf',
+        'excel': 'reporte_halos_$timestamp.xlsx',
         'imagen_anotada': 'imagen_anotada_$timestamp.png',
         'analisis_json': 'analisis_completo_$timestamp.json',
       },
@@ -552,6 +727,11 @@ class ZymbiotAnalysisService {
           resultado['pdf'] = await File(rutaPDF).exists();
         }
 
+        if (archivosGenerados['excel'] != null) {
+          final rutaExcel = await getRutaAnalisis(archivosGenerados['excel']);
+          resultado['excel'] = await File(rutaExcel).exists();
+        }
+
         if (archivosGenerados['imagen_anotada'] != null) {
           final rutaImagen = await getRutaAnalisis(
             archivosGenerados['imagen_anotada'],
@@ -563,6 +743,7 @@ class ZymbiotAnalysisService {
       print('Verificación de archivos para análisis:');
       print('JSON: ${resultado['json']}');
       print('PDF: ${resultado['pdf']}');
+      print('Excel: ${resultado['excel']}');
       print('Imagen: ${resultado['imagen']}');
     } catch (e) {
       print('Error verificando archivos: $e');
@@ -594,6 +775,16 @@ class ZymbiotAnalysisService {
           if (await pdfFile.exists()) {
             await pdfFile.delete();
             print('PDF eliminado: $rutaPDF');
+          }
+        }
+
+        // Eliminar Excel
+        if (archivosGenerados['excel'] != null) {
+          final rutaExcel = await getRutaAnalisis(archivosGenerados['excel']);
+          final excelFile = File(rutaExcel);
+          if (await excelFile.exists()) {
+            await excelFile.delete();
+            print('Excel eliminado: $rutaExcel');
           }
         }
 
