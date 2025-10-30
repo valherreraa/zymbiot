@@ -46,25 +46,94 @@ class _RegisterScreenState extends State<RegisterScreen> {
         '• Un carácter especial (!@#\$%^&*...)';
   }
 
+  Future<void> _showAlertDialog(String title, String message) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF33133B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF64316B)),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'Orbitron',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF64316B),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _register() async {
-    // Validar formato de contraseña
-    if (!_isPasswordValid(_passwordController.text)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_getPasswordRequirements()),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
+    // Validar campos vacíos
+    if (_emailController.text.trim().isEmpty) {
+      await _showAlertDialog(
+        'Campo requerido',
+        'Por favor, ingresa tu correo electrónico.',
       );
       return;
     }
 
+    if (_passwordController.text.isEmpty) {
+      await _showAlertDialog(
+        'Campo requerido',
+        'Por favor, ingresa una contraseña.',
+      );
+      return;
+    }
+
+    if (_confirmPasswordController.text.isEmpty) {
+      await _showAlertDialog(
+        'Campo requerido',
+        'Por favor, confirma tu contraseña.',
+      );
+      return;
+    }
+
+    // Validar formato de correo electrónico básico
+    if (!_emailController.text.contains('@') ||
+        !_emailController.text.contains('.')) {
+      await _showAlertDialog(
+        'Correo inválido',
+        'Por favor, ingresa un correo electrónico válido.',
+      );
+      return;
+    }
+
+    // Validar formato de contraseña
+    if (!_isPasswordValid(_passwordController.text)) {
+      await _showAlertDialog('Contraseña inválida', _getPasswordRequirements());
+      return;
+    }
+
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-          backgroundColor: Colors.red,
-        ),
+      await _showAlertDialog(
+        'Contraseñas no coinciden',
+        'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
       );
       return;
     }
@@ -79,24 +148,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (userCredential.user != null) {
         await userCredential.user!.sendEmailVerification();
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Se ha enviado un correo de verificación a tu cuenta. Por favor, verifica tu correo antes de iniciar sesión.',
-            ),
-            backgroundColor: Color.fromARGB(255, 209, 185, 249),
-            duration: Duration(seconds: 5),
-          ),
+        await _showAlertDialog(
+          'Registro exitoso',
+          'Se ha enviado un correo de verificación a tu cuenta. Por favor, verifica tu correo antes de iniciar sesión.',
         );
         // ignore: use_build_context_synchronously
         Navigator.pushReplacementNamed(context, '/login');
       }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'weak-password':
+          errorMessage = 'La contraseña es muy débil.';
+          break;
+        case 'email-already-in-use':
+          errorMessage = 'Ya existe una cuenta con este correo electrónico.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'El formato del correo electrónico no es válido.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage =
+              'El registro con correo electrónico no está habilitado.';
+          break;
+        default:
+          errorMessage = 'Error de registro: ${e.message}';
+      }
+      await _showAlertDialog('Error de registro', errorMessage);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
+      await _showAlertDialog(
+        'Error',
+        'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
       );
     }
   }
@@ -125,11 +207,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Navigator.pushNamed(context, '/congrats');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
+      await _showAlertDialog(
+        'Error de Google Sign-In',
+        'No se pudo registrarse con Google. Por favor, inténtalo de nuevo.',
       );
     }
   }
@@ -227,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                     // Requisitos de contraseña
+                    // Requisitos de contraseña
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: const Text(
