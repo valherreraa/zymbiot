@@ -384,7 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Text(
                 'Nota: Necesitarás verificar tu nuevo correo electrónico antes de que el cambio sea efectivo.',
                 style: TextStyle(
-                  color: Colors.yellow,
+                  color: Color.fromARGB(255, 253, 253, 253),
                   fontFamily: 'Poppins',
                   fontSize: 12,
                 ),
